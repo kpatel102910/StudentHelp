@@ -39,14 +39,14 @@ class DatabaseManager {
     // Simulate reading database file (in real app, this would be API call)
     async readDatabaseFile() {
         try {
-            // Try to fetch from a server endpoint first
-            const response = await fetch('database.json');
+            // Try to fetch from the API endpoint instead of file
+            const response = await fetch('/api/submissions');
             if (response.ok) {
                 const data = await response.json();
                 return data;
             }
         } catch (error) {
-            console.log('Database file not accessible, using localStorage');
+            console.log('API not accessible, using localStorage');
         }
         return null;
     }

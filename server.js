@@ -4,24 +4,12 @@ const path = require('path');
 const http = require('http');
 const url = require('url');
 
-const DB_FILE = path.join(__dirname, 'database.json');
-
-// Initialize in-memory database
+// Initialize in-memory database (no file system access)
 let dbData = {
     submissions: [],
     lastUpdated: new Date().toISOString(),
     version: '1.0'
 };
-
-// Load initial data from database.json if it exists (read-only)
-if (fs.existsSync(DB_FILE)) {
-    try {
-        const fileData = fs.readFileSync(DB_FILE, 'utf8');
-        dbData = JSON.parse(fileData);
-    } catch (error) {
-        console.log('Could not read database.json, using default data');
-    }
-}
 
 // MIME types
 const mimeTypes = {
@@ -178,5 +166,5 @@ function handleApiRequest(req, res, parsedUrl) {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
-    console.log('Database file:', DB_FILE);
+    console.log('Using in-memory database');
 });
