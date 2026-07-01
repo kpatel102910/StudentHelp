@@ -1,4 +1,5 @@
 // Express server using Supabase for persistent database
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
