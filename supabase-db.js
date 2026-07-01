@@ -1,167 +1,149 @@
-// Supabase Database Manager - Real cloud database solution
+// API Database Manager - Uses server API endpoints instead of direct Supabase
 class SupabaseDatabase {
     constructor() {
-        // Initialize Supabase client
-        this.supabaseUrl = 'https://ctjskblszxlwqyfefblx.supabase.co'; // Fixed: added https://
-        this.supabaseKey = 'sb_publishable_pmxjlbhs3YyQ5Ylc7Auqcw_PA9vQKZE'; // Replace with your Supabase anon key
-        this.supabase = null;
         this.submissions = [];
+        this.storageKey = 'studentHelpFallbackDB';
+        this.useLocalStorage = false;
         this.init();
     }
 
     async init() {
         try {
-            // Load Supabase client
-            if (window.supabase) {
-                this.supabase = window.supabase.createClient(
-                    this.supabaseUrl,
-                    this.supabaseKey
-                );
-                console.log('Supabase client initialized');
-                await this.loadSubmissions();
-            } else {
-                console.error('Supabase client not loaded. Please include Supabase CDN.');
-                this.fallbackToLocalStorage();
-            }
+            await this.loadSubmissions();
         } catch (error) {
-            console.error('Error initializing Supabase:', error);
+            console.error('Error initializing database:', error);
             this.fallbackToLocalStorage();
         }
     }
 
-    // Fallback to localStorage if Supabase fails
+    // Fallback to localStorage if API fails
     fallbackToLocalStorage() {
         console.log('Falling back to localStorage');
-        this.storageKey = 'studentHelpFallbackDB';
+        this.useLocalStorage = true;
         this.loadFromStorage();
     }
 
-    // Load submissions from Supabase
+    // Load submissions from API
     async loadSubmissions() {
-        if (this.supabase) {
-            try {
-                const { data, error } = await this.supabase
-                    .from('submissions')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) {
-                    console.error('Error loading from Supabase:', error);
-                    this.fallbackToLocalStorage();
-                    return;
-                }
-
-                this.submissions = data || [];
-                console.log('Loaded from Supabase:', this.submissions.length, 'submissions');
-            } catch (error) {
-                console.error('Error loading from Supabase:', error);
-                this.fallbackToLocalStorage();
-            }
-        } else {
+        if (this.useLocalStorage) {
             this.submissions = this.getFromStorage();
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/submissions');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            this.submissions = this.normalizeSubmissions(data.submissions || []);
+            console.log('Loaded from API:', this.submissions.length, 'submissions');
+        } catch (error) {
+            console.error('Error loading from API:', error);
+            this.fallbackToLocalStorage();
         }
     }
 
-    // Save submission to Supabase
+    // Normalize submissions for frontend compatibility
+    normalizeSubmissions(submissions) {
+        return submissions.map(sub => ({
+            id: sub.id,
+            name: sub.name,
+            email: sub.email || '',
+            subject: sub.subject,
+            topic: sub.topic,
+            description: sub.description,
+            status: sub.status,
+            type: sub.type || sub.submission_type || 'request',
+            submission_type: sub.submission_type || sub.type || 'request',
+            timestamp: sub.timestamp || sub.created_at,
+            created_at: sub.created_at || sub.timestamp,
+            updated_at: sub.updated_at || sub.last_updated,
+            last_updated: sub.last_updated || sub.updated_at
+        }));
+    }
+
+    // Save submission via API
     async saveSubmission(submission) {
-        if (this.supabase) {
-            try {
-                const submissionData = {
-                    submission_type: submission.type,  // Updated to match SQL schema
-                    name: submission.name,
-                    subject: submission.subject,
-                    topic: submission.topic,
-                    description: submission.description,
-                    status: 'pending',
-                    created_at: new Date().toISOString()
-                };
+        if (this.useLocalStorage) {
+            return this.saveToStorage(submission);
+        }
 
-                console.log('Attempting to save to Supabase:', submissionData);
-                
-                const { data, error } = await this.supabase
-                    .from('submissions')
-                    .insert([submissionData])
-                    .select();
+        try {
+            const response = await fetch('/api/submissions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(submission)
+            });
 
-                if (error) {
-                    console.error('Supabase save error:', error);
-                    console.error('Error details:', {
-                        message: error.message,
-                        details: error.details,
-                        hint: error.hint
-                    });
-                    return false;
-                }
-
-                console.log('Successfully saved to Supabase:', data[0]);
-                await this.loadSubmissions(); // Refresh local cache
-                return true;
-            } catch (error) {
-                console.error('Exception saving to Supabase:', error);
-                console.error('Exception details:', {
-                    name: error.name,
-                    message: error.message,
-                    stack: error.stack
-                });
-                return false;
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-        } else {
-            console.log('Supabase not available, using localStorage fallback');
+
+            const result = await response.json();
+            console.log('Successfully saved via API:', result);
+            await this.loadSubmissions(); // Refresh local cache
+            return true;
+        } catch (error) {
+            console.error('Error saving via API:', error);
+            this.fallbackToLocalStorage();
             return this.saveToStorage(submission);
         }
     }
 
-    // Update submission status in Supabase
+    // Update submission status via API
     async updateSubmissionStatus(id, newStatus) {
-        if (this.supabase) {
-            try {
-                const { error } = await this.supabase
-                    .from('submissions')
-                    .update({ 
-                        status: newStatus,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', id);
+        if (this.useLocalStorage) {
+            return this.updateInStorage(id, newStatus);
+        }
 
-                if (error) {
-                    console.error('Error updating in Supabase:', error);
-                    return false;
-                }
+        try {
+            const response = await fetch(`/api/submissions/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
 
-                console.log('Updated in Supabase:', id, newStatus);
-                await this.loadSubmissions(); // Refresh local cache
-                return true;
-            } catch (error) {
-                console.error('Error updating in Supabase:', error);
-                return false;
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-        } else {
+
+            console.log('Updated via API:', id, newStatus);
+            await this.loadSubmissions(); // Refresh local cache
+            return true;
+        } catch (error) {
+            console.error('Error updating via API:', error);
+            this.fallbackToLocalStorage();
             return this.updateInStorage(id, newStatus);
         }
     }
 
-    // Delete submission from Supabase
+    // Delete submission via API
     async deleteSubmission(id) {
-        if (this.supabase) {
-            try {
-                const { error } = await this.supabase
-                    .from('submissions')
-                    .delete()
-                    .eq('id', id);
+        if (this.useLocalStorage) {
+            return this.deleteFromStorage(id);
+        }
 
-                if (error) {
-                    console.error('Error deleting from Supabase:', error);
-                    return false;
-                }
+        try {
+            const response = await fetch(`/api/submissions/${id}`, {
+                method: 'DELETE'
+            });
 
-                console.log('Deleted from Supabase:', id);
-                await this.loadSubmissions(); // Refresh local cache
-                return true;
-            } catch (error) {
-                console.error('Error deleting from Supabase:', error);
-                return false;
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-        } else {
+
+            console.log('Deleted via API:', id);
+            await this.loadSubmissions(); // Refresh local cache
+            return true;
+        } catch (error) {
+            console.error('Error deleting via API:', error);
+            this.fallbackToLocalStorage();
             return this.deleteFromStorage(id);
         }
     }
@@ -179,7 +161,7 @@ class SupabaseDatabase {
     }
 
     importData(data) {
-        console.log('Import not implemented for Supabase - use Supabase dashboard directly');
+        console.log('Import not implemented - use server API directly');
         return false;
     }
 
@@ -189,7 +171,7 @@ class SupabaseDatabase {
             const stored = localStorage.getItem(this.storageKey);
             if (stored) {
                 const data = JSON.parse(stored);
-                this.submissions = data.submissions || [];
+                this.submissions = this.normalizeSubmissions(data.submissions || []);
             } else {
                 this.submissions = [];
             }
@@ -201,9 +183,9 @@ class SupabaseDatabase {
 
     saveToStorage(submission) {
         try {
-            submission.id = Date.now().toString();
-            submission.timestamp = new Date().toISOString();
-            submission.status = 'pending';
+            submission.id = submission.id || Date.now().toString();
+            submission.timestamp = submission.timestamp || new Date().toISOString();
+            submission.status = submission.status || 'pending';
             
             this.submissions.push(submission);
             

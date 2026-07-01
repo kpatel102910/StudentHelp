@@ -299,8 +299,14 @@
                     filtered = filtered.filter(s => s.subject === subjectFilter);
                 }
 
-                // Sort by timestamp (newest first)
-                filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                // Sort by created_at or timestamp (newest first), handling missing dates
+                filtered.sort((a, b) => {
+                    const dateA = a.created_at || a.timestamp;
+                    const dateB = b.created_at || b.timestamp;
+                    if (!dateA) return 1;
+                    if (!dateB) return -1;
+                    return new Date(dateB) - new Date(dateA);
+                });
 
                 return filtered;
             }
@@ -327,7 +333,8 @@
             }
 
             createSubmissionCard(submission) {
-                const date = new Date(submission.timestamp);
+                const dateStr = submission.created_at || submission.timestamp;
+                const date = dateStr ? new Date(dateStr) : new Date();
                 const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
                 
                 const statusColors = {
