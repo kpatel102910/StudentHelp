@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Student Academic Help</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <header class="nav-header">
+        <nav class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html" class="logo-text">StudentHelp</a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="videos.html" class="nav-link">Videos</a>
+                <a href="request-help.html" class="nav-link">Request Help</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="contact.html" class="nav-link active">Contact</a>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="page-content">
+        <div class="container">
+            <!-- Page Header -->
+            <header class="page-header animate-fade-in">
+                <h1>Contact</h1>
+                <p>Get in touch with our team for questions, collaborations, or to learn more about Student Academic Help.</p>
+            </header>
+
+            <!-- Contact Cards -->
+            <div class="contact-grid">
+                <div class="contact-card animate-fade-in animate-delay-1">
+                    <div class="contact-icon">💬</div>
+                    <h3>General Questions</h3>
+                    <p>Have questions about our platform, need help finding resources, or want to learn more about what we do? We're here to help!</p>
+                    <div class="contact-info">
+                        <p><strong>Email:</strong> help@studentacademichelp.org</p>
+                        <p><strong>Response Time:</strong> 24-48 hours</p>
+                    </div>
+                </div>
+
+                <div class="contact-card animate-fade-in animate-delay-2">
+                    <div class="contact-icon">🤝</div>
+                    <h3>Collaboration & Teachers</h3>
+                    <p>Teachers and schools interested in partnering with us or integrating our resources into their curriculum.</p>
+                    <div class="contact-info">
+                        <p><strong>Email:</strong> partners@studentacademichelp.org</p>
+                        <p><strong>Response Time:</strong> 2-3 business days</p>
+                    </div>
+                </div>
+
+                <div class="contact-card animate-fade-in animate-delay-3">
+                    <div class="contact-icon">🎓</div>
+                    <h3>Volunteer Opportunities</h3>
+                    <p>Students interested in creating content or volunteering to help others learn.</p>
+                    <div class="contact-info">
+                        <p><strong>Email:</strong> volunteer@studentacademichelp.org</p>
+                        <p><strong>Response Time:</strong> 3-5 business days</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="contact-form-section animate-fade-in animate-delay-1">
+                <h2>Request Help</h2>
+                <p>Can't find what you're looking for? Submit a help request and our team of student volunteers will create a resource just for you. We're here to help you succeed!</p>
+                <form class="contact-form" id="contactForm">
+                    <div class="form-group">
+                        <label for="contactName">Name *</label>
+                        <input type="text" id="contactName" name="name" required placeholder="Your name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contactSubject">Subject *</label>
+                        <select id="contactSubject" name="subject" required>
+                            <option value="">Select a subject</option>
+                            <option value="math">Math</option>
+                            <option value="science">Science</option>
+                            <option value="english">English</option>
+                            <option value="history">History</option>
+                            <option value="foreign-language">Foreign Language</option>
+                            <option value="computer-science">Computer Science</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactTopic">Topic *</label>
+                        <input type="text" id="contactTopic" name="topic" required placeholder="Brief topic or question title">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactDescription">Description *</label>
+                        <textarea id="contactDescription" name="description" rows="6" required placeholder="Provide detailed description of what you need help with. Be specific about concepts, problems, or questions you're struggling with."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                </form>
+
+                <!-- Success Message (hidden by default) -->
+                <div class="success-message" id="contactSuccessMessage" style="display: none;">
+                    <div class="success-content">
+                        <h3>✅ Message Sent Successfully!</h3>
+                        <p>Thank you for reaching out. We'll get back to you within the timeframe mentioned above for your inquiry type.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Important Notice -->
+            <div class="urgent-notice animate-fade-in animate-delay-2">
+                <div class="notice-content">
+                    <div class="notice-icon">⚠️</div>
+                    <div class="notice-text">
+                        <h4>Academic Honesty Reminder</h4>
+                        <p>Student Academic Help is designed to support learning and understanding. Please use our resources responsibly and in accordance with your school's academic integrity policies. Our goal is to help you learn, not to complete assignments for you.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <p>Student Academic Help</p>
+                </div>
+                <div class="footer-links">
+                    <a href="videos.html">Videos</a>
+                    <a href="request-help.html">Get Help</a>
+                    <a href="about.html">About Us</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                <div class="footer-copyright">
+                    <p>© 2026 Student Academic Help. Built by students, for students.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="supabase-db.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

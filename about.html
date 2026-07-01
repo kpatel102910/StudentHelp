@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Student Academic Help</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <header class="nav-header">
+        <nav class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html" class="logo-text">StudentHelp</a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="videos.html" class="nav-link">Videos</a>
+                <a href="request-help.html" class="nav-link">Request Help</a>
+                <a href="about.html" class="nav-link active">About</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="page-content">
+        <div class="container">
+            <!-- Page Header -->
+            <header class="page-header animate-fade-in">
+                <h1>About Student Academic Help</h1>
+                <p>Learn more about our mission to provide free, accessible academic support created by students, for students.</p>
+            </header>
+
+            <!-- About Content -->
+            <section class="about-intro animate-fade-in animate-delay-1">
+                <div class="about-content">
+                    <p>Student Academic Help is a completely free, student-run resource designed to make learning more accessible and understandable. We believe that sometimes the best explanations come from peers who have recently learned the same material and understand exactly where students get stuck.</p>
+                    <p>Our platform is built on the principle that education should be collaborative and supportive. Every video, explanation, and resource on our site is created by students who volunteer their time to help others succeed. We focus on clear, distraction-free content that gets straight to the point.</p>
+                    <p>All content is school-safe and reviewed to ensure it meets academic standards while remaining engaging and easy to understand.</p>
+                </div>
+            </section>
+
+            <!-- Who We Are Section -->
+            <section class="who-we-are">
+                <h2 class="section-title animate-fade-in">Who We Are</h2>
+                <div class="team-grid">
+                    <div class="team-card animate-fade-in animate-delay-1">
+                        <div class="team-icon">🎓</div>
+                        <h3>Student Creators</h3>
+                        <p>Our content creators are high school and college students who excel in their subjects and want to help others learn.</p>
+                    </div>
+                    <div class="team-card animate-fade-in animate-delay-2">
+                        <div class="team-icon">🤝</div>
+                        <h3>Peer-to-Peer Support</h3>
+                        <p>We believe students learn best from other students who understand the challenges and frustrations of learning new concepts.</p>
+                    </div>
+                    <div class="team-card animate-fade-in animate-delay-3">
+                        <div class="team-icon">📹</div>
+                        <h3>Focus on Clarity</h3>
+                        <p>Our videos are short, focused, and designed to explain one concept clearly without unnecessary complexity.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section class="faq-section">
+                <h2 class="section-title animate-fade-in">Frequently Asked Questions</h2>
+                <div class="faq-container">
+                    <div class="faq-item animate-fade-in animate-delay-1">
+                        <button class="faq-question">
+                            <span>Is this really free?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Yes! Student Academic Help is completely free to use. We don't charge for any of our videos, resources, or help requests. Our platform is supported by student volunteers who believe in making education accessible to everyone.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item animate-fade-in animate-delay-2">
+                        <button class="faq-question">
+                            <span>Who makes the videos?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Our videos are created by high school and college student volunteers who have demonstrated excellence in their subjects. Each creator goes through a brief review process to ensure their explanations are clear, accurate, and helpful.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item animate-fade-in animate-delay-3">
+                        <button class="faq-question">
+                            <span>How fast do requests get answered?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>We typically respond to help requests within 2-3 days, depending on the complexity of the topic and volunteer availability. You'll receive an update when someone starts working on your request.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item animate-fade-in animate-delay-1">
+                        <button class="faq-question">
+                            <span>Is this school-safe?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Absolutely. All content is reviewed to ensure it's appropriate for school environments and meets academic standards. We focus purely on educational content without any inappropriate material.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item animate-fade-in animate-delay-2">
+                        <button class="faq-question">
+                            <span>Can I contribute content?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Yes! We're always looking for knowledgeable students who want to help others. Contact us through our contact page to learn more about becoming a content creator.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item animate-fade-in animate-delay-3">
+                        <button class="faq-question">
+                            <span>What subjects do you cover?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>We currently cover Math, Science, English, History, Foreign Languages, Computer Science, and study skills. If you need help with a subject not listed, submit a request and we'll do our best to find someone who can help!</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <p>Student Academic Help</p>
+                </div>
+                <div class="footer-links">
+                    <a href="videos.html">Videos</a>
+                    <a href="request-help.html">Get Help</a>
+                    <a href="about.html">About Us</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                <div class="footer-copyright">
+                    <p>© 2026 Student Academic Help. Built by students, for students.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="supabase-db.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

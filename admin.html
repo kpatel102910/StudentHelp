@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Student Academic Help</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <header class="nav-header">
+        <nav class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html" class="logo-text">StudentHelp</a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="videos.html" class="nav-link">Videos</a>
+                <a href="request-help.html" class="nav-link">Request Help</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="admin.html" class="nav-link active">Admin</a>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <span class="theme-icon"></span>
+                </button>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="page-content">
+        <div class="container">
+            <!-- Page Header -->
+            <header class="page-header animate-fade-in">
+                <h1>Admin Dashboard</h1>
+                <p>View and manage help requests submitted by students.</p>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid animate-fade-in animate-delay-1">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalRequests">0</div>
+                    <div class="stat-label">Total Requests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pendingRequests">0</div>
+                    <div class="stat-label">Pending Requests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="inProgressRequests">0</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="resolvedRequests">0</div>
+                    <div class="stat-label">Resolved</div>
+                </div>
+            </div>
+
+            <!-- Request Status Filter -->
+            <div class="tab-nav animate-fade-in animate-delay-2">
+                <button class="tab-btn active" data-tab="all">All Requests</button>
+                <button class="tab-btn" data-tab="pending">Pending</button>
+                <button class="tab-btn" data-tab="in-progress">In Progress</button>
+                <button class="tab-btn" data-tab="resolved">Resolved</button>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="filter-controls animate-fade-in animate-delay-2">
+                <select id="statusFilter">
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                </select>
+                <select id="subjectFilter">
+                    <option value="all">All Subjects</option>
+                    <option value="math">Math</option>
+                    <option value="science">Science</option>
+                    <option value="english">English</option>
+                    <option value="history">History</option>
+                    <option value="other">Other</option>
+                </select>
+                <button class="btn btn-secondary" id="refreshBtn">Refresh</button>
+                <button class="btn btn-secondary" id="exportBtn">Export Data</button>
+                <button class="btn btn-secondary" id="importBtn">Import Data</button>
+                <button class="btn btn-secondary" id="updateFileBtn">Update JSON File</button>
+                <button class="btn btn-secondary" id="clearAll">Clear All</button>
+                <input type="file" id="importFile" style="display: none;" accept=".json">
+            </div>
+
+            <!-- Submissions List -->
+            <div class="submissions-container animate-fade-in animate-delay-3">
+                <div id="submissionsList">
+                    <!-- Submissions will be dynamically loaded here -->
+                </div>
+                
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <div class="empty-icon"></div>
+                    <h3>No requests yet</h3>
+                    <p>When students submit help requests, they'll appear here.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <p>Student Academic Help</p>
+                </div>
+                <div class="footer-links">
+                    <a href="videos.html">Videos</a>
+                    <a href="request-help.html">Get Help</a>
+                    <a href="about.html">About Us</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                <div class="footer-copyright">
+                    <p>© 2026 Student Academic Help. Built by students, for students.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="supabase-db.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Admin Dashboard JavaScript
+        class AdminDashboard {
+            constructor() {
+                this.currentTab = 'all';
+                this.submissions = [];
+                console.log('AdminDashboard initialized');
+                this.init();
+            }
+
+            async init() {
+                // Wait for Supabase database to be ready
+                if (window.supabaseDatabase) {
+                    await this.loadSubmissions();
+                    this.setupEventListeners();
+                    this.updateStats();
+                    this.renderSubmissions();
+                    
+                    // Auto-refresh every 5 seconds
+                    this.refreshInterval = setInterval(() => {
+                        this.refreshData();
+                    }, 5000);
+                } else {
+                    console.error('Supabase database not found');
+                }
+            }
+
+            setupEventListeners() {
+                // Tab switching
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentTab = e.target.dataset.tab;
+                        this.renderSubmissions();
+                    });
+                });
+
+                // Filters
+                document.getElementById('statusFilter').addEventListener('change', () => this.renderSubmissions());
+                document.getElementById('subjectFilter').addEventListener('change', () => this.renderSubmissions());
+                
+                // Refresh button
+                document.getElementById('refreshBtn').addEventListener('click', () => this.refreshData());
+                
+                // Export button
+                document.getElementById('exportBtn').addEventListener('click', () => this.exportData());
+                
+                // Import button
+                document.getElementById('importBtn').addEventListener('click', () => {
+                    document.getElementById('importFile').click();
+                });
+                
+                // Import file change
+                document.getElementById('importFile').addEventListener('change', (e) => this.importData(e));
+                
+                // Update JSON file button
+                document.getElementById('updateFileBtn').addEventListener('click', () => {
+                    alert('Data is automatically saved to Supabase cloud database!');
+                });
+                
+                // Clear all
+                document.getElementById('clearAll').addEventListener('click', () => this.clearAllSubmissions());
+            }
+
+            async loadSubmissions() {
+                try {
+                    this.submissions = window.supabaseDatabase.getSubmissions();
+                    console.log('Loaded submissions from database:', this.submissions.length);
+                } catch (error) {
+                    console.error('Error loading submissions:', error);
+                    this.submissions = [];
+                }
+            }
+
+            updateStats() {
+                const totalRequests = this.submissions.length;
+                const pendingRequests = this.submissions.filter(s => s.status === 'pending').length;
+                const inProgressRequests = this.submissions.filter(s => s.status === 'in-progress').length;
+                const resolvedRequests = this.submissions.filter(s => s.status === 'resolved').length;
+
+                document.getElementById('totalRequests').textContent = totalRequests;
+                document.getElementById('pendingRequests').textContent = pendingRequests;
+                document.getElementById('inProgressRequests').textContent = inProgressRequests;
+                document.getElementById('resolvedRequests').textContent = resolvedRequests;
+            }
+
+            async refreshData() {
+                console.log('Refreshing data...');
+                await this.loadSubmissions();
+                this.updateStats();
+                this.renderSubmissions();
+            }
+
+            exportData() {
+                try {
+                    const data = window.supabaseDatabase.exportData();
+                    
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `student-help-requests-${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    console.log('Data exported successfully');
+                } catch (error) {
+                    console.error('Export failed:', error);
+                }
+            }
+
+            async importData(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                try {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            const success = window.supabaseDatabase.importData(data);
+                            if (success) {
+                                await this.loadSubmissions();
+                                this.updateStats();
+                                this.renderSubmissions();
+                                console.log('Data imported successfully');
+                            } else {
+                                console.error('Invalid file format');
+                            }
+                        } catch (parseError) {
+                            console.error('Failed to parse file:', parseError);
+                        }
+                    };
+                    reader.readAsText(file);
+                } catch (error) {
+                    console.error('Import failed:', error);
+                }
+                
+                // Reset file input
+                event.target.value = '';
+            }
+
+            getFilteredSubmissions() {
+                let filtered = [...this.submissions];
+
+                // Filter by tab (status)
+                if (this.currentTab !== 'all') {
+                    filtered = filtered.filter(s => s.status === this.currentTab);
+                }
+
+                // Filter by status dropdown
+                const statusFilter = document.getElementById('statusFilter').value;
+                if (statusFilter !== 'all') {
+                    filtered = filtered.filter(s => s.status === statusFilter);
+                }
+
+                // Filter by subject
+                const subjectFilter = document.getElementById('subjectFilter').value;
+                if (subjectFilter !== 'all') {
+                    filtered = filtered.filter(s => s.subject === subjectFilter);
+                }
+
+                // Sort by timestamp (newest first)
+                filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                return filtered;
+            }
+
+            renderSubmissions() {
+                const submissions = this.getFilteredSubmissions();
+                console.log('Rendering submissions:', submissions);
+                const container = document.getElementById('submissionsList');
+                const emptyState = document.getElementById('emptyState');
+
+                if (submissions.length === 0) {
+                    console.log('No submissions to display, showing empty state');
+                    container.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+
+                console.log('Displaying', submissions.length, 'submissions');
+                emptyState.style.display = 'none';
+                container.innerHTML = submissions.map(submission => this.createSubmissionCard(submission)).join('');
+
+                // Add event listeners to the rendered elements
+                this.attachCardEventListeners();
+            }
+
+            createSubmissionCard(submission) {
+                const date = new Date(submission.timestamp);
+                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                
+                const statusColors = {
+                    'pending': '#f59e0b',
+                    'in-progress': '#3b82f6', 
+                    'resolved': '#22c55e'
+                };
+
+                return `
+                    <div class="submission-card" data-id="${submission.id}">
+                        <div class="submission-header">
+                            <div class="submission-type">
+                                <span class="type-icon"></span>
+                                <span class="type-label">Help Request</span>
+                            </div>
+                            <div class="submission-status" style="color: ${statusColors[submission.status]}">
+                                ${submission.status.replace('-', ' ').toUpperCase()}
+                            </div>
+                        </div>
+                        
+                        <div class="submission-content">
+                            <div class="submission-meta">
+                                <h3>${submission.topic}</h3>
+                                <div class="meta-info">
+                                    <span class="name">${submission.name}</span>
+                                    <span class="subject">${submission.subject}</span>
+                                    <span class="date">${formattedDate}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="submission-description">
+                                <p>${submission.description}</p>
+                            </div>
+                            
+                            <div class="submission-actions">
+                                <select class="status-select" data-id="${submission.id}">
+                                    <option value="pending" ${submission.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="in-progress" ${submission.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+                                    <option value="resolved" ${submission.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+                                </select>
+                                <button class="btn btn-delete" data-id="${submission.id}">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            attachCardEventListeners() {
+                // Status change handlers
+                document.querySelectorAll('.status-select').forEach(select => {
+                    select.addEventListener('change', (e) => {
+                        const id = e.target.dataset.id;
+                        const newStatus = e.target.value;
+                        this.updateSubmissionStatus(id, newStatus);
+                    });
+                });
+
+                // Delete handlers
+                document.querySelectorAll('.btn-delete').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = e.target.dataset.id;
+                        this.deleteSubmission(id);
+                    });
+                });
+            }
+
+            async updateSubmissionStatus(id, newStatus) {
+                await window.supabaseDatabase.updateSubmissionStatus(id, newStatus);
+                await this.loadSubmissions();
+                this.updateStats();
+                this.renderSubmissions();
+            }
+
+            async deleteSubmission(id) {
+                if (confirm('Are you sure you want to delete this submission?')) {
+                    await window.supabaseDatabase.deleteSubmission(id);
+                    await this.loadSubmissions();
+                    this.updateStats();
+                    this.renderSubmissions();
+                }
+            }
+
+            async clearAllSubmissions() {
+                if (confirm('Are you sure you want to delete all submissions? This cannot be undone.')) {
+                    // Clear all submissions via Supabase
+                    const submissions = window.supabaseDatabase.getSubmissions();
+                    for (const submission of submissions) {
+                        await window.supabaseDatabase.deleteSubmission(submission.id);
+                    }
+                    await this.loadSubmissions();
+                    this.updateStats();
+                    this.renderSubmissions();
+                }
+            }
+        }
+
+        // Initialize admin dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing AdminDashboard...');
+            setTimeout(() => {
+                console.log('Creating AdminDashboard instance...');
+                const dashboard = new AdminDashboard();
+                
+                // Listen for storage changes from other tabs/pages
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'studentHelpSubmissions') {
+                        console.log('Storage changed, refreshing dashboard...');
+                        dashboard.refreshData();
+                    }
+                });
+            }, 100);
+        });
+    </script>
+    <style>
+        /* Admin Dashboard Specific Styles */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: var(--accent);
+        }
+
+        .tab-btn.active::after {
+            transform: scaleX(1);
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-controls select {
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .submissions-container {
+            min-height: 400px;
+        }
+
+        .submission-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .submission-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent);
+        }
+
+        .submission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .submission-type {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .type-icon {
+            font-size: 1.2rem;
+        }
+
+        .type-label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .submission-status {
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .submission-content {
+            padding: 1.5rem;
+        }
+
+        .submission-meta h3 {
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .meta-info {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-info span {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .meta-info .name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .submission-description {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .submission-description p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .submission-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .status-select {
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tab-nav {
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+
+            .filter-controls {
+                flex-direction: column;
+            }
+
+            .filter-controls select,
+            .filter-controls button {
+                width: 100%;
+            }
+
+            .submission-header {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+
+            .meta-info {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .submission-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</body>
+</html>

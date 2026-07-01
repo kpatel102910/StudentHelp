@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Help - Student Academic Help</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <header class="nav-header">
+        <nav class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html" class="logo-text">StudentHelp</a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="videos.html" class="nav-link">Videos</a>
+                <a href="request-help.html" class="nav-link active">Request Help</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="page-content">
+        <div class="container">
+            <!-- Page Header -->
+            <header class="page-header animate-fade-in">
+                <h1>Request Help</h1>
+                <p>Can't find what you're looking for? Submit a help request and our team of student volunteers will create a resource just for you. We're here to help you succeed!</p>
+            </header>
+
+            <!-- Request Form -->
+            <div class="request-form-container animate-fade-in animate-delay-1">
+                <form class="request-form" id="requestForm">
+                    <div class="form-group">
+                        <label for="name">Name *</label>
+                        <input type="text" id="name" name="name" placeholder="Your name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subject">Subject *</label>
+                        <select id="subject" name="subject" required>
+                            <option value="">Select a subject</option>
+                            <option value="math">Math</option>
+                            <option value="science">Science</option>
+                            <option value="english">English</option>
+                            <option value="history">History</option>
+                            <option value="foreign-language">Foreign Language</option>
+                            <option value="computer-science">Computer Science</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="topic">Topic *</label>
+                        <input type="text" id="topic" name="topic" placeholder="Brief topic or question title" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description *</label>
+                        <textarea id="description" name="description" rows="6" required placeholder="Provide detailed description of what you need help with. Be specific about concepts, problems, or questions you're struggling with."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                </form>
+
+                <div class="form-note">
+                    <p><strong>Note:</strong> New requests are treated as "pending" until someone is working on them or they're resolved. We'll do our best to respond within 2-3 days.</p>
+                </div>
+            </div>
+
+            <!-- Success Message (hidden by default) -->
+            <div class="success-message" id="successMessage" style="display: none;">
+                <div class="success-content">
+                    <h3>✅ Request Submitted Successfully!</h3>
+                    <p>Thank you for your help request. Our team will review it and create a resource for you as soon as possible. You'll receive an update when someone starts working on your request.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <p>Student Academic Help</p>
+                </div>
+                <div class="footer-links">
+                    <a href="videos.html">Videos</a>
+                    <a href="request-help.html">Get Help</a>
+                    <a href="about.html">About Us</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                <div class="footer-copyright">
+                    <p>© 2026 Student Academic Help. Built by students, for students.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="supabase-db.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

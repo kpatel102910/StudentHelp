@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storage Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        button { padding: 10px 20px; margin: 10px; background: #6366f1; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #4f46e5; }
+        .log { background: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 4px; font-family: monospace; white-space: pre-wrap; }
+        .error { background: #fee; color: #c00; }
+        .success { background: #efe; color: #080; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LocalStorage Debug Test</h1>
+        
+        <button onclick="testLocalStorage()">Test LocalStorage</button>
+        <button onclick="addTestData()">Add Test Submission</button>
+        <button onclick="viewStorage()">View Storage</button>
+        <button onclick="clearStorage()">Clear Storage</button>
+        
+        <div id="log"></div>
+    </div>
+
+    <script>
+        function log(message, type = '') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = 'log ' + type;
+            entry.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function testLocalStorage() {
+            try {
+                localStorage.setItem('test', 'hello');
+                const value = localStorage.getItem('test');
+                if (value === 'hello') {
+                    log('LocalStorage is working', 'success');
+                } else {
+                    log('LocalStorage read failed', 'error');
+                }
+                localStorage.removeItem('test');
+            } catch (error) {
+                log('LocalStorage error: ' + error.message, 'error');
+            }
+        }
+
+        function addTestData() {
+            try {
+                const submissions = JSON.parse(localStorage.getItem('studentHelpSubmissions') || '[]');
+                
+                const testSubmission = {
+                    id: Date.now().toString(),
+                    type: 'request',
+                    name: 'Test Student',
+                    subject: 'math',
+                    topic: 'Test Topic',
+                    description: 'This is a test submission to debug the admin dashboard.',
+                    status: 'pending',
+                    timestamp: new Date().toISOString(),
+                    lastUpdated: new Date().toISOString()
+                };
+                
+                submissions.push(testSubmission);
+                localStorage.setItem('studentHelpSubmissions', JSON.stringify(submissions));
+                
+                log('Added test submission: ' + JSON.stringify(testSubmission, null, 2), 'success');
+            } catch (error) {
+                log('Error adding test data: ' + error.message, 'error');
+            }
+        }
+
+        function viewStorage() {
+            try {
+                const storage = localStorage.getItem('studentHelpSubmissions');
+                if (storage) {
+                    const submissions = JSON.parse(storage);
+                    log('Storage contains ' + submissions.length + ' submissions:');
+                    submissions.forEach((sub, index) => {
+                        log(`Submission ${index + 1}: ${sub.name} - ${sub.topic} (${sub.status})`);
+                    });
+                } else {
+                    log('No submissions found in storage', 'error');
+                }
+            } catch (error) {
+                log('Error viewing storage: ' + error.message, 'error');
+            }
+        }
+
+        function clearStorage() {
+            try {
+                localStorage.removeItem('studentHelpSubmissions');
+                log('Storage cleared', 'success');
+            } catch (error) {
+                log('Error clearing storage: ' + error.message, 'error');
+            }
+        }
+
+        // Auto-test on load
+        window.onload = function() {
+            log('Storage test page loaded');
+            testLocalStorage();
+        };
+    </script>
+</body>
+</html>

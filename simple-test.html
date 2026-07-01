@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Supabase Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .btn { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 10px 0; }
+        .btn:hover { background: #0056b3; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Simple Supabase Test</h1>
+    
+    <button class="btn" onclick="testStep1()">Step 1: Check Supabase Client</button>
+    <button class="btn" onclick="testStep2()">Step 2: Initialize Client</button>
+    <button class="btn" onclick="testStep3()">Step 3: Test Connection</button>
+    <button class="btn" onclick="testStep4()">Step 4: Test Submission</button>
+    
+    <div id="output"></div>
+
+    <script>
+        const SUPABASE_URL = 'https://ctjskblszxlwqyfefblx.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_pmxjlbhs3YyQ5Ylc7Auqcw_PA9vQKZE';
+        let supabase = null;
+        
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = message;
+            output.appendChild(div);
+            console.log(message);
+        }
+        
+        function testStep1() {
+            log('Step 1: Checking Supabase client availability...');
+            
+            if (typeof window.supabase === 'undefined') {
+                log('ERROR: Supabase client not loaded. CDN script failed.', 'error');
+                log('Check: Is internet working? Is CDN accessible?', 'error');
+            } else {
+                log('SUCCESS: Supabase client loaded', 'success');
+                log('Available methods: ' + Object.keys(window.supabase).join(', '), 'info');
+            }
+        }
+        
+        function testStep2() {
+            log('Step 2: Initializing Supabase client...');
+            
+            try {
+                if (!window.supabase) {
+                    log('ERROR: Cannot initialize - Supabase client not loaded', 'error');
+                    return;
+                }
+                
+                log('URL: ' + SUPABASE_URL, 'info');
+                log('Key: ' + SUPABASE_ANON_KEY.substring(0, 20) + '...', 'info');
+                
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                log('SUCCESS: Supabase client initialized', 'success');
+                log('Client object: ' + typeof supabase, 'info');
+            } catch (error) {
+                log('ERROR: Failed to initialize Supabase client', 'error');
+                log('Error: ' + error.message, 'error');
+                log('Stack: ' + error.stack, 'error');
+            }
+        }
+        
+        async function testStep3() {
+            log('Step 3: Testing database connection...');
+            
+            if (!supabase) {
+                log('ERROR: Supabase client not initialized', 'error');
+                return;
+            }
+            
+            try {
+                log('Testing basic query...', 'info');
+                
+                const { data, error } = await supabase
+                    .from('submissions')
+                    .select('count')
+                    .single();
+                
+                if (error) {
+                    log('ERROR: Database query failed', 'error');
+                    log('Error code: ' + error.code, 'error');
+                    log('Error message: ' + error.message, 'error');
+                    log('Error details: ' + JSON.stringify(error.details, null, 2), 'error');
+                } else {
+                    log('SUCCESS: Database connection working', 'success');
+                    log('Found ' + data.count + ' submissions', 'info');
+                }
+            } catch (error) {
+                log('ERROR: Exception during database test', 'error');
+                log('Error: ' + error.message, 'error');
+                log('Stack: ' + error.stack, 'error');
+            }
+        }
+        
+        async function testStep4() {
+            log('Step 4: Testing submission...');
+            
+            if (!supabase) {
+                log('ERROR: Supabase client not initialized', 'error');
+                return;
+            }
+            
+            try {
+                const testData = {
+                    submission_type: 'request',
+                    name: 'Test User',
+                    subject: 'math',
+                    topic: 'Test Topic',
+                    description: 'Test description from simple test'
+                };
+                
+                log('Submitting test data...', 'info');
+                log('Data: ' + JSON.stringify(testData, null, 2), 'info');
+                
+                const { data, error } = await supabase
+                    .from('submissions')
+                    .insert([testData])
+                    .select();
+                
+                if (error) {
+                    log('ERROR: Submission failed', 'error');
+                    log('Error code: ' + error.code, 'error');
+                    log('Error message: ' + error.message, 'error');
+                    log('Error details: ' + JSON.stringify(error.details, null, 2), 'error');
+                } else {
+                    log('SUCCESS: Submission saved', 'success');
+                    log('Saved data: ' + JSON.stringify(data[0], null, 2), 'info');
+                }
+            } catch (error) {
+                log('ERROR: Exception during submission', 'error');
+                log('Error: ' + error.message, 'error');
+                log('Stack: ' + error.stack, 'error');
+            }
+        }
+        
+        // Auto-run step 1 on load
+        window.onload = () => {
+            testStep1();
+        };
+    </script>
+</body>
+</html>

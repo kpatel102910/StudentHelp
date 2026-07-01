@@ -1,0 +1,14 @@
+{
+  "name": "student-academic-help",
+  "version": "1.0.0",
+  "description": "Student Academic Help website with real database",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}

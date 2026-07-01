@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explanation Videos - Student Academic Help</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <header class="nav-header">
+        <nav class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html" class="logo-text">StudentHelp</a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="videos.html" class="nav-link active">Videos</a>
+                <a href="request-help.html" class="nav-link">Request Help</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="page-content">
+        <div class="container">
+            <!-- Page Header -->
+            <header class="page-header animate-fade-in">
+                <h1>Explanation Videos</h1>
+                <p>Browse our collection of student-made explanation videos organized by subject. Each video is designed to be clear, concise, and focused on helping you understand specific concepts.</p>
+            </header>
+
+            <!-- Subject Filters -->
+            <div class="subject-filters animate-fade-in animate-delay-1">
+                <button class="filter-btn active" data-subject="all">All Subjects</button>
+                <button class="filter-btn" data-subject="math">Math</button>
+                <button class="filter-btn" data-subject="science">Science</button>
+                <button class="filter-btn" data-subject="english">English</button>
+                <button class="filter-btn" data-subject="other">Other</button>
+            </div>
+
+            <!-- Video Grid -->
+            <div class="video-grid" id="videoGrid">
+                <!-- Math Videos -->
+                <div class="video-card animate-fade-in animate-delay-1" data-subject="math">
+                    <div class="video-thumbnail">
+                        <div class="play-button">▶</div>
+                    </div>
+                    <div class="video-content">
+                        <span class="subject-tag math">Math</span>
+                        <h3>Understanding Quadratic Equations</h3>
+                        <p>Learn how to solve quadratic equations using the quadratic formula and factoring methods.</p>
+                    </div>
+                </div>
+
+                <div class="video-card animate-fade-in animate-delay-2" data-subject="math">
+                    <div class="video-thumbnail">
+                        <div class="play-button">▶</div>
+                    </div>
+                    <div class="video-content">
+                        <span class="subject-tag math">Math</span>
+                        <h3>Derivatives Made Simple</h3>
+                        <p>A clear explanation of basic derivative rules and how to apply them to common functions.</p>
+                    </div>
+                </div>
+
+                <div class="video-card animate-fade-in animate-delay-3" data-subject="math">
+                    <div class="video-thumbnail">
+                        <div class="play-button">▶</div>
+                    </div>
+                    <div class="video-content">
+                        <span class="subject-tag math">Math</span>
+                        <h3>Geometry: Triangle Properties</h3>
+                        <p>Explore the properties of different types of triangles and learn key theorems.</p>
+                    </div>
+                </div>
+
+                <!-- Science Videos -->
+                <div class="video-card animate-fade-in animate-delay-1" data-subject="science">
+                    <div class="video-thumbnail">
+                        <div class="play-button">▶</div>
+                    </div>
+                    <div class="video-content">
+                        <span class="subject-tag science">Science</span>
+                        <h3>Photosynthesis Explained</h3>
+                        <p>Understand the process of photosynthesis and its importance for life on Earth.</p>
+                    </div>
+                </div>
+
+                <div class="video-card animate-fade-in animate-delay-2" data-subject="science">
+                    <div class="video-thumbnail">
+                        <div class="play-button">▶</div>
+                    </div>
+                    <div class="video-content">
+                        <span class="subject-tag science">Science</span>
+                        <h3>Chemical Bonding Basics</h3>
+                        <p>Learn about ionic, covalent, and metallic bonds with clear examples.</p>
+                    </div>
+                </div>
+
+                <div class="video-card animate-fade-in animate-delay-3" data-subject="science">
+                    <div class="video-thumbnail">
+                        <div class="play-button">▶</div>
+                    </div>
+                    <div class="video-content">
+                        <span class="subject-tag science">Science</span>
+                        <h3>Newton's Laws of Motion</h3>
+                        <p>A practical explanation of Newton's three laws with real-world examples.</p>
+                    </div>
+                </div>
+
+                <!-- English Videos -->
+                <div class="video-card animate-fade-in animate-delay-1" data-subject="english">
+                    <div class="video-thumbnail">
+                        <div class="play-button">▶</div>
+                    </div>
+                    <div class="video-content">
+                        <span class="subject-tag english">English</span>
+                        <h3>Essay Structure 101</h3>
+                        <p>Master the basic structure of academic essays with clear examples and tips.</p>
+                    </div>
+                </div>
+
+                <div class="video-card animate-fade-in animate-delay-2" data-subject="english">
+                    <div class="video-thumbnail">
+                        <div class="play-button">▶</div>
+                    </div>
+                    <div class="video-content">
+                        <span class="subject-tag english">English</span>
+                        <h3>Punctuation Rules Made Easy</h3>
+                        <p>Learn the essential punctuation rules that will improve your writing clarity.</p>
+                    </div>
+                </div>
+
+                <div class="video-card animate-fade-in animate-delay-3" data-subject="english">
+                    <div class="video-thumbnail">
+                        <div class="play-button">▶</div>
+                    </div>
+                    <div class="video-content">
+                        <span class="subject-tag english">English</span>
+                        <h3>Literary Analysis Guide</h3>
+                        <p>Understand how to analyze literature and write insightful literary essays.</p>
+                    </div>
+                </div>
+
+                <!-- Other Videos -->
+                <div class="video-card animate-fade-in animate-delay-1" data-subject="other">
+                    <div class="video-thumbnail">
+                        <div class="play-button">▶</div>
+                    </div>
+                    <div class="video-content">
+                        <span class="subject-tag other">Other</span>
+                        <h3>Study Techniques That Work</h3>
+                        <p>Discover effective study methods backed by cognitive science research.</p>
+                    </div>
+                </div>
+
+                <div class="video-card animate-fade-in animate-delay-2" data-subject="other">
+                    <div class="video-thumbnail">
+                        <div class="play-button">▶</div>
+                    </div>
+                    <div class="video-content">
+                        <span class="subject-tag other">Other</span>
+                        <h3>Time Management for Students</h3>
+                        <p>Learn practical strategies to balance homework, extracurriculars, and free time.</p>
+                    </div>
+                </div>
+
+                <div class="video-card animate-fade-in animate-delay-3" data-subject="other">
+                    <div class="video-thumbnail">
+                        <div class="play-button">▶</div>
+                    </div>
+                    <div class="video-content">
+                        <span class="subject-tag other">Other</span>
+                        <h3>Note-Taking Mastery</h3>
+                        <p>Master different note-taking techniques to improve retention and understanding.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <p>Student Academic Help</p>
+                </div>
+                <div class="footer-links">
+                    <a href="videos.html">Videos</a>
+                    <a href="request-help.html">Get Help</a>
+                    <a href="about.html">About Us</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                <div class="footer-copyright">
+                    <p>© 2026 Student Academic Help. Built by students, for students.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="supabase-db.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
