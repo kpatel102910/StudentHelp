@@ -3,7 +3,20 @@
   "builds": [
     {
       "src": "server.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "index.html",
+          "videos.html",
+          "request-help.html",
+          "about.html",
+          "contact.html",
+          "admin.html",
+          "styles.css",
+          "script.js",
+          "supabase-db.js"
+        ]
+      }
     }
   ],
   "routes": [
