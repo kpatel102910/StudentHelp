@@ -1,4 +1,4 @@
-// Simple Node.js server that actually writes to database.json
+// Simple Node.js server using in-memory store for Vercel compatibility
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
@@ -6,14 +6,21 @@ const url = require('url');
 
 const DB_FILE = path.join(__dirname, 'database.json');
 
-// Initialize database file if it doesn't exist
-if (!fs.existsSync(DB_FILE)) {
-    const initialData = {
-        submissions: [],
-        lastUpdated: new Date().toISOString(),
-        version: '1.0'
-    };
-    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
+// Initialize in-memory database
+let dbData = {
+    submissions: [],
+    lastUpdated: new Date().toISOString(),
+    version: '1.0'
+};
+
+// Load initial data from database.json if it exists (read-only)
+if (fs.existsSync(DB_FILE)) {
+    try {
+        const fileData = fs.readFileSync(DB_FILE, 'utf8');
+        dbData = JSON.parse(fileData);
+    } catch (error) {
+        console.log('Could not read database.json, using default data');
+    }
 }
 
 // MIME types
@@ -76,9 +83,8 @@ function handleApiRequest(req, res, parsedUrl) {
     // GET /api/submissions - Get all submissions
     if (endpoint === 'submissions' && req.method === 'GET') {
         try {
-            const data = fs.readFileSync(DB_FILE, 'utf8');
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(data);
+            res.end(JSON.stringify(dbData));
         } catch (error) {
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'Failed to read database' }));
@@ -95,14 +101,11 @@ function handleApiRequest(req, res, parsedUrl) {
         req.on('end', () => {
             try {
                 const submission = JSON.parse(body);
-                const dbData = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
                 submission.id = Date.now().toString();
                 submission.timestamp = new Date().toISOString();
                 submission.status = 'pending';
                 dbData.submissions.push(submission);
                 dbData.lastUpdated = new Date().toISOString();
-                
-                fs.writeFileSync(DB_FILE, JSON.stringify(dbData, null, 2));
                 
                 res.writeHead(201, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ success: true, id: submission.id }));
@@ -124,15 +127,12 @@ function handleApiRequest(req, res, parsedUrl) {
         req.on('end', () => {
             try {
                 const updateData = JSON.parse(body);
-                const dbData = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
                 const submission = dbData.submissions.find(s => s.id === id);
                 
                 if (submission) {
                     Object.assign(submission, updateData);
                     submission.lastUpdated = new Date().toISOString();
                     dbData.lastUpdated = new Date().toISOString();
-                    
-                    fs.writeFileSync(DB_FILE, JSON.stringify(dbData, null, 2));
                     
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ success: true }));
@@ -152,13 +152,11 @@ function handleApiRequest(req, res, parsedUrl) {
     if (endpoint.startsWith('submissions/') && req.method === 'DELETE') {
         const id = endpoint.split('/')[1];
         try {
-            const dbData = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
             const originalLength = dbData.submissions.length;
             dbData.submissions = dbData.submissions.filter(s => s.id !== id);
             
             if (dbData.submissions.length < originalLength) {
                 dbData.lastUpdated = new Date().toISOString();
-                fs.writeFileSync(DB_FILE, JSON.stringify(dbData, null, 2));
                 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ success: true }));
